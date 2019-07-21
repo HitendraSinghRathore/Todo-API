@@ -13,39 +13,43 @@ router.post('/', function(req, res, next) {
     console.log("CALLED");
 
     try {
-        let userObj = req.body.userObj;
-        console.log(userObj);
+        let userObj = req.body;
+
         Users.findOne({ userName: userObj.userName }, function(err, user) {
+            console.log("In");
             if (!user) {
                 res.status(404);
-                res.json({
-                    message: "User Record not found",
+                res.send({
+                    message: "Invalid username or password.",
                     data: err
                 });
             } else
                 enc.decryptPassword(userObj.password, user.password, function(error, result) {
                     if (error) {
+                        console.log("Some error")
                         res.status(500);
-                        res.json({
-                            message: "Internal Server Error",
+                        res.send({
+                            message: "Some error occured.",
                             data: error
                         });
                     }
                     if (result == true) {
+                        console.log("User ducces")
                         let returnUser = {
                             userName: user.userName,
                             _id: user._id,
                             displayName: user.displayName
                         }
                         res.status(200);
-                        res.json({
+                        res.send({
                             data: returnUser
                         });
                     } else {
+
+
                         res.status(401);
-                        console.log("dsds")
-                        res.json({
-                            message: "Unauthorised User"
+                        res.send({
+                            message: "Invalid username or password."
                         })
                     }
                 });
@@ -53,7 +57,7 @@ router.post('/', function(req, res, next) {
         })
     } catch (error) {
         res.status(500);
-        res.json({
+        res.send({
             message: "Internal Server Error ",
             data: error
         })
@@ -67,21 +71,22 @@ router.post('/addUser', function(req, res, next) {
     try {
 
 
-        let userObj = req.body.userObj;
+        let userObj = req.body;
+        console.log(userObj)
 
         Users.findOne({ userName: userObj.userName }, function(err, user) {
             if (user) {
-                res.status(403);
-                res.json({
-                    message: "User Already exists",
+                res.status(400);
+                res.send({
+                    message: "User Already exists. Try loggin in.",
                     data: err
                 });
             } else {
                 enc.cryptPassword(userObj.password, function(error, hash) {
                     if (error) {
                         res.status(500);
-                        res.json({
-                            message: "Internal Server Error",
+                        res.send({
+                            message: "Some error occured.",
                             data: error
                         });
                     } else {
@@ -93,8 +98,8 @@ router.post('/addUser', function(req, res, next) {
                         newUser.save(function(error, userSave) {
                             if (err) {
                                 res.status(500);
-                                res.json({
-                                    message: "Cannot save user",
+                                res.send({
+                                    message: "Some error occured, please try again later.",
                                     data: error
                                 });
                             } else {
@@ -104,8 +109,8 @@ router.post('/addUser', function(req, res, next) {
                                     displayName: userSave.displayName
                                 };
                                 res.status(201);
-                                res.json({
-                                    message: "User created",
+                                res.send({
+                                    message: "User creation success.",
                                     data: returnUser
                                 });
                             }
@@ -118,7 +123,7 @@ router.post('/addUser', function(req, res, next) {
 
     } catch (error) {
         res.status(500);
-        res.json({
+        res.send({
             message: "Internal Server Error",
             data: error
         })

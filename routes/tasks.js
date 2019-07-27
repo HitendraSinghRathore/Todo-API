@@ -77,12 +77,14 @@ router.delete('/deleteTask/:taskId', function(req, res) {
         let taskId = req.params.taskId;
         Tasks.deleteOne({ _id: new objectId(taskId) }, function(err, result) {
             if (result.deletedCount == 0) {
-
+                console.log("error");
+                res.status(500);
                 res.send({
                     message: "Error deleting task",
                     data: err
                 });
             } else {
+
                 res.status(200);
                 res.send({
                     message: "Deleted Succesfully"
@@ -100,7 +102,7 @@ router.delete('/deleteTask/:taskId', function(req, res) {
 
 router.put('/updateTask', function(req, res) {
     try {
-        Tasks.findOneAndUpdate({ _id: req.body.taskObj._id }, { $set: { description: req.body.taskObj.description, status: req.body.taskObj.status } }, { new: true }, function(err, task) {
+        Tasks.findOneAndUpdate({ _id: req.body.taskObj._id }, { $set: { status: req.body.taskObj.status } }, { new: true }, function(err, task) {
             if (err) {
 
                 res.send({
